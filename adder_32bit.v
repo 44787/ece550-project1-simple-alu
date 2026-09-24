@@ -3,7 +3,9 @@ module adder_32bit(
 	input [31:0] b_actual,
    input cin,
 	output [31:0] sum,
-   output overflow
+   output overflow,
+	output isNotEqual,
+	output isLessThan
 );
 
 	wire [7:0] w;
@@ -91,6 +93,21 @@ module adder_32bit(
 	);
 	
 	xor my_xor(overflow, c_in, c_out);
+	
+	// isNotEqual: all res should be 0
+	wire [31:0] or_series;
+	assign or_series[0] = sum[0];
+	genvar i;
+	generate
+		for (i = 1; i < 32; i = i + 1) begin : not_equal
+			or my_or(or_series[i], or_series[i-1], sum[i]);
+		end
+	endgenerate
+	
+	assign isNotEqual = or_series[31];
+	
+	// isLessThan: sign bit should 
+	xor xor_less(isLessThan, sum[31], overflow);
 
 endmodule
 	
